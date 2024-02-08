@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if ! [[ "$1" =~ ^(start|stop|update)$ ]]; then
+if ! [[ "$1" =~ ^(start|stop|update|dev-start)$ ]]; then
     echo "Usage: launcher COMMAND"
     echo "Commands:"
     echo "    start:       Start/initialize a stack"
     echo "    stop:        Stop a running stack"
     echo "    update:      Update stack"
+    echo "    dev-start:   Start stack with dev mode"
     exit 1
 fi
 
@@ -52,5 +53,12 @@ update)
 
     echo "cleaning any dangling images..."
     docker image prune -f
+    ;;
+dev-start)
+    echo "starting seat dev stack..."
+    echo "deploying dev packages"
+    rsync -avu --delete /mnt/ubuntu-dev-env/dev-env/active-projects/Visual\ Studio\ Code/seat-discourse/ /mnt/ubuntu-dev-env/dev-env/test-env-docker/seat-docker/packages/seat-discours
+    echo "Starting seat-docker application..."
+    docker compose -f docker-compose.yml -f docker-compose.mariadb.yml -f docker-compose.traefik.yml -f docker-compose.overload.yml up
     ;;
 esac
